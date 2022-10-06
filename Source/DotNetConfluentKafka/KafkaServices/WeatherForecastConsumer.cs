@@ -22,14 +22,15 @@ namespace DotNetConfluentKafka.KafkaServices
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            new Thread(() => ConsumerLoop(stoppingToken)).Start();
+            new Thread(() => _ = ConsumerLoop(stoppingToken)).Start();
             return Task.CompletedTask;
         }
 
-        private void ConsumerLoop(CancellationToken cancellationToken)
+        private async Task ConsumerLoop(CancellationToken cancellationToken)
         {
             _consumer.Subscribe(_topic);
-            
+
+            await Task.Yield(); // Added to solve main thread lock
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
